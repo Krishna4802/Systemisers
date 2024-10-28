@@ -4,12 +4,9 @@ require 'base64'
 
 API_KEY = '3dd8cf07c2d4a7bf40f1510b587dd390'
 
-# Function to create a task
 def create_task(image_path)
-  # Read the image file and convert it to Base64
   image_data = Base64.strict_encode64(File.read(image_path))
 
-  # Prepare the request payload
   request_payload = {
     clientKey: API_KEY,
     task: {
@@ -18,24 +15,19 @@ def create_task(image_path)
     }
   }.to_json
 
-  # Make the HTTP POST request to create the task
   uri = URI('https://freecaptchabypass.com/createTask')
   response = Net::HTTP.post(uri, request_payload, 'Content-Type' => 'application/json')
   
-  # Parse the response JSON
   result = JSON.parse(response.body)
   
-  # Check if there was an error
   if result['errorId'] != 0
     puts "Error creating task: #{result['errorDescription']}"
     return nil
   end
   
-  # Return the task ID
   result['taskId']
 end
 
-# Function to get the task result
 def get_task_result(task_id, retries = 3)
   uri = URI('https://freecaptchabypass.com/getTaskResult')
   request_payload = { clientKey: API_KEY, taskId: task_id }.to_json
@@ -52,7 +44,7 @@ def get_task_result(task_id, retries = 3)
     rescue JSON::ParserError => e
       puts "Failed to parse JSON on attempt #{attempt}: #{e.message}"
       if attempt < retries
-        sleep(5) # Wait before retrying
+        sleep(5) 
         next
       else
         puts "Max retries reached. Could not get task result."
@@ -60,16 +52,13 @@ def get_task_result(task_id, retries = 3)
       end
     end
 
-    # Check if there's an error in the response
     if result['errorId'] != 0
       puts "Error getting task result: #{result['errorDescription']}"
       return nil
     end
 
-    # If the status is 'ready', return the solution
     return result['solution']['text'] if result['status'] == 'ready'
 
-    # Wait before checking again
     sleep(5)
   end
 end
