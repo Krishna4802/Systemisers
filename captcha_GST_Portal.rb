@@ -1,3 +1,5 @@
+# Sample Function calling : ruby captcha_GST_Portal.rb <username> <password>
+
 require 'selenium-webdriver'
 require 'net/http'
 require 'json'
