@@ -76,15 +76,16 @@ driver = Selenium::WebDriver.for :chrome, options: options
 
 login_url = 'https://services.gst.gov.in/services/login'
 driver.navigate.to login_url
+sleep(2)
 
 begin
   wait = Selenium::WebDriver::Wait.new(timeout: 10)
   
-  username = 'test' 
+  username = ARGV[0]
   username_field = wait.until { driver.find_element(name: 'user_name') }
   username_field.send_keys(username)
 
-  password = 'test' 
+  password = ARGV[1]
   password_field = wait.until { driver.find_element(xpath: '//input[@placeholder="Enter Password"]') }
   password_field.send_keys(password)
 
@@ -92,7 +93,6 @@ begin
   captcha_file_path = "captcha_image_#{Time.now.to_i}.png"
   capture_captcha_image(driver, captcha_file_path)
 
-  
   task_id = create_task(captcha_file_path)
   if task_id
     puts "Task created successfully with ID: #{task_id}"
@@ -121,6 +121,13 @@ begin
   else
     puts "Failed to create CAPTCHA task."
   end
+
+begin
+  File.delete(captcha_file_path)
+  puts "CAPTCHA image deleted: #{captcha_file_path}"
+rescue => e
+  puts "Failed to delete CAPTCHA image: #{e.message}"
+end
 
 rescue => e
   puts "An error occurred: #{e.message}"
