@@ -77,8 +77,8 @@ sleep(2)
 driver.find_element(xpath: "//button[text()='  No  ']").click
 sleep(2)
 
-pdf_file_path = File.join(download_directory, 'Form_pdf_541346040300624.pdf')
-json_file_path = File.join(download_directory, '541346040300624.json')
+pdf_file_path = File.join(download_directory, 'Form_pdf.pdf')
+json_file_path = File.join(download_directory, 'json_file.json')
 
 FileUtils.rm_f(pdf_file_path)
 FileUtils.rm_f(json_file_path)
