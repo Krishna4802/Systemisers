@@ -1,5 +1,5 @@
 require './app/lib/project_report/generate_loan_amortization_pdf'
-loan_amount = 100_000
+loan_amount = 100000
 annual_interest_rate = 10
 loan_years = 5
 pdf_service = ProjectReport::GenerateLoanAmortizationPdf.new(loan_amount, annual_interest_rate, loan_years)
