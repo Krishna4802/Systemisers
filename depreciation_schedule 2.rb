@@ -21,21 +21,20 @@ module ProjectReport
     end
 
     def generate_depreciation_schedule(name, opening_balance, actual_additions, projected_addition, depreciation_percent, is_less_than_6_months)
-      rate = is_less_than_6_months ? depreciation_percent / 2.0 : depreciation_percent
-      schedule = []
-      total_columns = actual_additions.size + @projection_years
-      additions = actual_additions + [projected_addition] + Array.new([total_columns - actual_additions.size - 1, 0].max, 0)
+      initial_rate = depreciation_percent / (is_less_than_6_months ? 2.0 : 1.0) / 100.0
+      total_years = actual_additions.size + @projection_years
+      additions = actual_additions + [projected_addition] + [0] * [total_years - actual_additions.size - 1, 0].max
 
       balance = opening_balance
       start_year = @current_year - actual_additions.size
+      schedule = []
 
-      (0...total_columns).each do |year_index|
+      total_years.times do |year_index|
         addition = additions[year_index] || 0
-        current_rate = (year_index == 0 && is_less_than_6_months) ? rate / 100.0 : depreciation_percent / 100.0
+        applicable_rate = (year_index.zero? && is_less_than_6_months) ? initial_rate : depreciation_percent / 100.0
 
         total = balance + addition
-        depreciation = total * current_rate
-
+        depreciation = total * applicable_rate
         if name == "Plant & Machinery" && year_index == 2 && projected_addition != 0
           depreciation += addition * 0.15 * 0.5
         end
@@ -59,28 +58,15 @@ module ProjectReport
 
     def generate_totals
       total_years = @assets.map { |asset| asset[:actual_additions].size }.max + @projection_years
-      
-      totals = {
-        total_opening: Array.new(total_years, 0.0),
-        total_addition: Array.new(total_years, 0.0),
-        total_total: Array.new(total_years, 0.0),
-        total_depreciation: Array.new(total_years, 0.0),
-        total_closing: Array.new(total_years, 0.0)
-      }
+      totals = Hash.new { |hash, key| hash[key] = Array.new(total_years, 0.0) }
 
       @assets.each do |asset|
         asset[:yearly_data].each_with_index do |data, year_index|
           totals[:total_opening][year_index] += data[:opening_balance]
           totals[:total_addition][year_index] += data[:addition]
-          totals[:total_total][year_index] += data[:total]
+          totals[:total_balance][year_index] += data[:total]
           totals[:total_depreciation][year_index] += data[:depreciation]
           totals[:total_closing][year_index] += data[:closing_balance]
-        end
-      end
-
-      totals.each do |key, value|
-        if value.size < total_years
-          value.concat(Array.new(total_years - value.size, 0.0))
         end
       end
 
@@ -88,21 +74,17 @@ module ProjectReport
     end
 
     def display_schedule
-      asset_details = []
-
-      @assets.each do |asset|
-        asset_details << {
+      asset_details = @assets.map do |asset|
+        {
           name: asset[:name],
           depreciation_percent: asset[:depreciation_percent],
           yearly_data: asset[:yearly_data]
         }
       end
 
-      totals = generate_totals
-
       {
         assets: asset_details,
-        totals: totals
+        totals: generate_totals
       }
     end
   end
