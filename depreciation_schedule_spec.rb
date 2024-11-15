@@ -1,6 +1,5 @@
-require 'rspec'
 require 'date'
-require_relative '/Users/krishnaprasath/Systemisers/Git_clone/systemisers_app/api/app/lib/project_report_lib/depreciation_schedule.rb'
+require_relative '../../../app/lib/project_report_lib/depreciation_schedule'
 
 RSpec.describe ProjectReportLib::DepreciationSchedule, type: :model do
   let(:projection_years) { 6 }
@@ -37,7 +36,6 @@ RSpec.describe ProjectReportLib::DepreciationSchedule, type: :model do
       first_year = schedule.first
       expect(first_year[:year]).to eq("2022-23")
       expect(first_year[:opening_balance]).to be_within(0.01).of(0)
-      # expect(first_year[:addition]).to eq(100)
       expect(first_year[:addition]).to be_within(5).of(100)
       expect(first_year[:depreciation]).to be_within(0.01).of(7.5)
     end
@@ -53,7 +51,7 @@ RSpec.describe ProjectReportLib::DepreciationSchedule, type: :model do
       totals = subject.generate_totals
 
       expect(totals[:total_opening]).to be_an(Array)
-      expect(totals[:total_opening].size).to eq(9) 
+      expect(totals[:total_opening].size).to eq(9)
       expect(totals[:total_addition].size).to eq(9)
       expect(totals[:total_balance].size).to eq(9)
       expect(totals[:total_depreciation].size).to eq(9)
@@ -73,7 +71,7 @@ RSpec.describe ProjectReportLib::DepreciationSchedule, type: :model do
       totals = subject.generate_totals
 
       expect(totals[:total_opening]).to be_an(Array)
-      expect(totals[:total_opening].size).to eq(projection_years) 
+      expect(totals[:total_opening].size).to eq(projection_years)
       expect(totals[:total_addition].size).to eq(projection_years)
       expect(totals[:total_balance].size).to eq(projection_years)
       expect(totals[:total_depreciation].size).to eq(projection_years)
@@ -82,7 +80,7 @@ RSpec.describe ProjectReportLib::DepreciationSchedule, type: :model do
       expect(totals[:total_opening][0]).to be_within(0.01).of(0)
     end
   end
-  
+
   describe '#yearly_summary' do
     before do
       subject.add_asset("Plant & Machinery", 15, 0, [], 300, true)
@@ -146,20 +144,20 @@ RSpec.describe ProjectReportLib::DepreciationSchedule, type: :model do
     it 'ensures each year\'s closing balance matches the following year\'s opening balance' do
       subject.assets.each do |asset|
         yearly_data = asset[:yearly_data]
-        
+
         yearly_data.each_cons(2) do |prev_year, next_year|
           expect(prev_year[:closing_balance]).to eq(next_year[:opening_balance]),
-            "Failed for asset #{asset[:name]} between years #{prev_year[:year]} and #{next_year[:year]}"
+                                                 "Failed for asset #{asset[:name]} between years #{prev_year[:year]} and #{next_year[:year]}"
         end
       end
     end
   end
-  
+
   describe 'Yearly balance continuity' do
     it 'ensures each years closing balance matches the following years opening balance' do
       subject.assets.each do |asset|
         yearly_data = asset[:yearly_data]
-        
+
         yearly_data.each_cons(2) do |prev_year, next_year|
           expect(prev_year[:closing_balance]).to eq(next_year[:opening_balance])
         end
