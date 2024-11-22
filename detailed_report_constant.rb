@@ -1,14 +1,12 @@
-DEFAULT_MORATORIUM_MONTH = 5
+DEFAULT_MORATORIUM_MONTH = 6
 DEFAULT_PROJECTION_YEARS = 6
 DEFAULT_MORATORIUM_TYPE = "interest_capitalization"
 
-DETAILED_REPORT_OUTPUT_PATH = "/Combined_Loan_Depreciation_Report.pdf"
-
-PROJECT_ROOT = Pathname.new(File.dirname(__FILE__)).join("..", "..").realpath
+DETAILED_REPORT_OUTPUT_PATH = "/Users/krishnaprasath/Desktop/Combined_Loan_Depreciation_Report.pdf"
 
 ROBOTO_FONT_PATH = {
-  normal: PROJECT_ROOT.join("app/assets/fonts/Roboto-Regular.ttf").to_s,
-  bold: PROJECT_ROOT.join("app/assets/fonts/Roboto-Bold.ttf").to_s
+  normal: "/systemisers_app/api/app/assets/fonts/Roboto-Regular.ttf",
+  bold: "/systemisers_app/api/app/assets/fonts/Roboto-Bold.ttf"
 }
 
 COMPANY_NAME = "Company Name"

@@ -91,27 +91,40 @@ depreciation_schedule.add_asset("Generator", 15, 0, [6.02, 0], 0, true)
 depreciation_schedule.add_asset("Packing Machine", 15, 0, [5.25, 0], 0, true)
 depreciation_schedule.add_asset("Vehicle", 15, 0, [32.57, 0], 0, true)
 
+
+
+
+depreciation_schedule = ProjectReport::DepreciationSchedule.new(6)
+
+depreciation_schedule.add_asset("Plant & Machinery", 15,  0, [], 32.00, true)
+depreciation_schedule.add_asset("Interiors", 15, 0, [], 1.25, true)
+
 result = depreciation_schedule.display_schedule
-puts result
+yearly_summary_result = depreciation_schedule.yearly_summary
+puts yearly_summary_result
 
 
+
+# loan_amortization_schedule
+
+js = ProjectReport::LoanAmortization.new(2400000,10,5,"interest_capitalization",5,Date.today)
 
 
 # detailed_report generation calling 
 
 com = "abv"
 location="ast"
-tst = DetailedReport.new(com,location,2400000,10,5,6)
-depreciation_schedule = DetailedReport.new(com,location,2400000,10,5,6)
+int = "interest_capitalization"
+depreciation_schedule = DetailedReport.new(com,location,2400000,10,5,6,int,5,Date.today)
 depreciation_schedule.add_depreciation_asset("Plant & Machinery", 15,  0, [], 32.00, true)
 depreciation_schedule.add_depreciation_asset("Interiors", 15, 0, [], 1.25, true)
 output_file = depreciation_schedule.generate_pdf("/Users/krishnaprasath/Desktop/Combined_Loan_Depreciation_Report.pdf")
 
+# depreciation_schedule = DetailedReport.new(com,location,2400000,10,5,6)
 
 
 com = "abv"
 location="ast"
-tst = DetailedReport.new(com,location,2400000,10,5,6)
 depreciation_schedule = DetailedReport.new(com,location,2400000,10,5,6)
 depreciation_schedule.add_depreciation_asset("Plant & Machinery", 15,0, [198.68, 152.22],293.00,true)
 depreciation_schedule.add_depreciation_asset("Building", 5, 0, [39.00, 0], 0, true)
@@ -121,3 +134,21 @@ depreciation_schedule.add_depreciation_asset("Generator", 15, 0, [6.02, 0], 0, t
 depreciation_schedule.add_depreciation_asset("Packing Machine", 15, 0, [5.25, 0], 0, true)
 depreciation_schedule.add_depreciation_asset("Vehicle", 15, 0, [32.57, 0], 0, true)
 output_file = depreciation_schedule.generate_pdf("/Users/krishnaprasath/Desktop/Combined_Loan_Depreciation_Report_actual.pdf")
+
+
+
+
+
+com = "abv"
+location="ast"
+int = "interest_capitalization"
+
+depreciation_schedule = DetailedReport.new("abv","ast",2400000,10,5,6,"interest_capitalization",5,Date.today)
+depreciation_schedule.add_depreciation_asset("Plant & Machinery", 15,0, [198.68, 152.22],293.00,true)
+depreciation_schedule.add_depreciation_asset("Building", 5, 0, [39.00, 0], 0, true)
+depreciation_schedule.add_depreciation_asset("Computer", 40, 0, [0.81, 0], 0, true)
+depreciation_schedule.add_depreciation_asset("Furniture", 10, 0, [7.50, 0], 0, true)
+depreciation_schedule.add_depreciation_asset("Generator", 15, 0, [6.02, 0], 0, true)
+depreciation_schedule.add_depreciation_asset("Packing Machine", 15, 0, [5.25, 0], 0, true)
+depreciation_schedule.add_depreciation_asset("Vehicle", 15, 0, [32.57, 0], 0, true)
+output_file = depreciation_schedule.generate_pdf("/Users/krishnaprasath/Desktop/Combined_Loan_Depreciation_Report.pdf")

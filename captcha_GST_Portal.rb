@@ -1,11 +1,16 @@
-# Sample Function calling : ruby captcha_GST_Portal.rb <username> <password>
-
 require 'selenium-webdriver'
 require 'net/http'
 require 'json'
 require 'base64'
 
-API_KEY = '3dd8cf07c2d4a7bf40f1510b587dd390' 
+API_KEY = '674cbe22709f6fbc18ec18b246280337' 
+
+if ARGV.length < 2
+  puts "Invalid username and password \nUsage: ruby script.rb <username> <password>"
+  exit(1)
+end
+
+username = ARGV[0]
 
 def capture_captcha_image(driver, file_path)
   wait = Selenium::WebDriver::Wait.new(timeout: 10)

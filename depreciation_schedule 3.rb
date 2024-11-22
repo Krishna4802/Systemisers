@@ -1,8 +1,8 @@
-module ProjectReportLib
+module ProjectReport
   class DepreciationSchedule
     attr_accessor :assets, :projection_years, :current_year
 
-    def initialize(projection_years, current_year = 2024)
+    def initialize(projection_years, current_year: 2024)
       @projection_years = projection_years
       @current_year = current_year
       @assets = []
@@ -10,12 +10,12 @@ module ProjectReportLib
 
     def add_asset(name, depreciation_percent, opening_balance, actual_additions, projected_addition, is_less_than_6_months)
       @assets << {
-        name: name,
-        depreciation_percent: depreciation_percent,
-        opening_balance: opening_balance,
-        actual_additions: actual_additions,
-        projected_addition: projected_addition,
-        is_less_than_6_months: is_less_than_6_months,
+        name:,
+        depreciation_percent:,
+        opening_balance:,
+        actual_additions:,
+        projected_addition:,
+        is_less_than_6_months:,
         yearly_data: generate_depreciation_schedule(name, opening_balance, actual_additions, projected_addition, depreciation_percent, is_less_than_6_months)
       }
     end
@@ -23,25 +23,41 @@ module ProjectReportLib
     def generate_depreciation_schedule(name, opening_balance, actual_additions, projected_addition, depreciation_percent, is_less_than_6_months)
       initial_rate = depreciation_percent / (is_less_than_6_months ? 2.0 : 1.0) / 100.0
       total_years = actual_additions.size + @projection_years
-      additions = actual_additions + [projected_addition] + Array.new([total_years - actual_additions.size - 1, 0].max, 0)
+      additions = actual_additions + [projected_addition] + [0] * [total_years - actual_additions.size - 1, 0].max
+
       balance = opening_balance
       start_year = @current_year - actual_additions.size
+      schedule = []
 
-      Array.new(total_years) do |year_index|
+      total_years.times do |year_index|
         addition = additions[year_index] || 0
-        applicable_rate = year_index.zero? && is_less_than_6_months ? initial_rate : depreciation_percent / 100.0
+        applicable_rate = (year_index.zero? && is_less_than_6_months) ? initial_rate : depreciation_percent / 100.0
+
         total = balance + addition
         depreciation = total * applicable_rate
-        depreciation += addition * 0.15 * 0.5 if name == "Plant & Machinery" && year_index == 2 && projected_addition != 0
+        if name == "Plant & Machinery" && year_index == 2 && projected_addition != 0
+          depreciation += addition * 0.15 * 0.5
+        end
+
         closing_balance = total - depreciation
 
+        schedule << {
+          year: "#{start_year + year_index}-#{(start_year + year_index + 1) % 100}",
+          opening_balance:,
+          addition:,
+          total:,
+          depreciation:,
+          closing_balance:
+        }
+
         balance = closing_balance
-        { year: "#{start_year + year_index}-#{(start_year + year_index + 1) % 100}", opening_balance: balance, addition: addition, total: total, depreciation: depreciation, closing_balance: closing_balance }
       end
+
+      schedule
     end
 
     def generate_totals
-      total_years = @assets.map { |asset| asset[:actual_additions].size }.max + @projection_years
+      total_years = @assets&.map { |asset| asset[:actual_additions].size }&.max&. + @projection_years
       totals = Hash.new { |hash, key| hash[key] = Array.new(total_years, 0.0) }
 
       @assets&.each do |asset|
@@ -53,6 +69,7 @@ module ProjectReportLib
           totals[:total_closing][year_index] += data[:closing_balance]
         end
       end
+
       totals
     end
 
@@ -60,14 +77,26 @@ module ProjectReportLib
       @assets&.map do |asset|
         {
           name: asset[:name],
-          yearly_data: asset[:yearly_data]&.map { |data| { year: data[:year], closing_balance: data[:closing_balance] } }
+          yearly_data: asset[:yearly_data]&.map do |data|
+            { year: data[:year], closing_balance: data[:closing_balance] }
+          end
         }
       end
     end
 
     def display_schedule
-      asset_details = @assets&.map { |asset| { name: asset[:name], depreciation_percent: asset[:depreciation_percent], yearly_data: asset[:yearly_data] } }
-      { assets: asset_details, totals: generate_totals }
+      asset_details = @assets&.map do |asset|
+        {
+          name: asset[:name],
+          depreciation_percent: asset[:depreciation_percent],
+          yearly_data: asset[:yearly_data]
+        }
+      end
+
+      {
+        assets: asset_details,
+        totals: generate_totals
+      }
     end
   end
 end
